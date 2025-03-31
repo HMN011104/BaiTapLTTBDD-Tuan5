@@ -26,8 +26,7 @@ class SignInScreen extends StatelessWidget {
     final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
     if (googleUser == null) return null;
 
-    final GoogleSignInAuthentication googleAuth =
-        await googleUser.authentication;
+    final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
     final credential = GoogleAuthProvider.credential(
       accessToken: googleAuth.accessToken,
       idToken: googleAuth.idToken,
@@ -40,47 +39,44 @@ class SignInScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: ElevatedButton(
-          onPressed: () async {
-            final user = await _signInWithGoogle();
-            if (user != null) {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => SuccessScreen(user: user),
-                ),
-              );
-            } else {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => ErrorScreen(),
-                ),
-              );
-            }
-          },
-          child: Text('Login by Gmail'),
-        ),
-      ),
-    );
-  }
-}
-
-class SuccessScreen extends StatelessWidget {
-  final User user;
-
-  SuccessScreen({required this.user});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('Success!'),
-            Text('Hi ${user.email}'),
-            Text('Welcome to UTHSmartTasks'),
+            Image.asset('assets/logo.png', width: 150),
+            SizedBox(height: 20),
+            Text(
+              'SmartTasks',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 10),
+            Text(
+              'A simple and efficient to-do app',
+              style: TextStyle(fontSize: 14, color: Colors.grey),
+            ),
+            SizedBox(height: 40),
+            ElevatedButton.icon(
+              label: Text('SIGN IN WITH GOOGLE'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+                foregroundColor: Colors.black,
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  side: BorderSide(color: Colors.grey),
+                ),
+              ),
+              onPressed: () async {
+                final user = await _signInWithGoogle();
+                if (user != null) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ProfileScreen(user: user),
+                    ),
+                  );
+                }
+              },
+            ),
           ],
         ),
       ),
@@ -88,16 +84,53 @@ class SuccessScreen extends StatelessWidget {
   }
 }
 
-class ErrorScreen extends StatelessWidget {
+class ProfileScreen extends StatelessWidget {
+  final User user;
+
+  ProfileScreen({required this.user});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
+      appBar: AppBar(title: Text('Profile')),
+      body: Padding(
+        padding: EdgeInsets.all(20),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('Google Sign-In Failed'),
-            Text('User canceled the Google sign-in process.'),
+            CircleAvatar(
+              radius: 50,
+              backgroundImage: NetworkImage(user.photoURL ?? ''),
+            ),
+            SizedBox(height: 20),
+            TextField(
+              decoration: InputDecoration(
+                labelText: 'Name',
+                border: OutlineInputBorder(),
+              ),
+              controller: TextEditingController(text: user.displayName ?? ''),
+            ),
+            SizedBox(height: 10),
+            TextField(
+              decoration: InputDecoration(
+                labelText: 'Email',
+                border: OutlineInputBorder(),
+              ),
+              controller: TextEditingController(text: user.email ?? ''),
+              readOnly: true,
+            ),
+            SizedBox(height: 10),
+            TextField(
+              decoration: InputDecoration(
+                labelText: 'Date of Birth',
+                border: OutlineInputBorder(),
+              ),
+              controller: TextEditingController(text: '23/05/1995'),
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('Back'),
+            ),
           ],
         ),
       ),
